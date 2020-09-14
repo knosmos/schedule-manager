@@ -1,0 +1,232 @@
+<html>
+    <head>
+        <title>Schedule Manager</title>
+    </head>
+    <body>
+        <style>
+            body{
+                font-family:Bahnschrift,"Segoe UI",serif;
+                background-size:cover;
+                text-align:center;
+                background-image:url('https://refugesunnyslope.com/wp-content/uploads/2018/11/Video-Webpage-Background.jpg');
+                background-size:cover;
+                font-weight:400;
+            }
+            h1{
+                font-size:70pt;
+                margin-bottom:0px;
+                font-weight:300;
+            }
+            .soft {
+                color:rgb(148, 148, 148);
+            }
+            .card {
+                font-size:20pt;
+            }
+            .card:hover {
+                background-color:rgb(233, 233, 233);
+            }
+            #main{
+                margin-left:auto;
+                margin-right:auto;
+                box-shadow:0px 0px 10px rgb(165, 165, 165);
+            }
+            table, tr {
+                border-collapse: collapse;
+            }
+            td {
+                border-bottom: 1px solid grey;
+                padding:10px;
+                margin:0px;
+                background-color:rgba(255,255,255,0.5);
+            }
+            #editpage{
+                background-color:rgba(255,255,255,0.5);
+                padding:10px;
+                display:none;
+            }
+            input[type=text]{
+                font-family:Bahnschrift,"Segoe UI",serif;
+                margin:5px;
+                padding:6px;
+            }
+            button{
+                font-family:Bahnschrift,"Segoe UI",serif;
+                margin:5px;
+                padding:6px;
+                background-color:rgba(240, 240, 240, 0.555);
+                width:70%;
+                border:none;
+                box-shadow:0px 0px 10px rgb(165, 165, 165);
+            }
+            button:hover{
+                background-color:rgba(194, 194, 194, 0.589);
+            }
+            #editbutton{
+                padding:4px;
+                width:100px;
+                margin:0px;
+            }
+            @keyframes fade{
+                from{opacity:1;}
+                to{opacity:0;}
+            }
+            .alert{
+                margin:10px;
+                padding:5px;
+                background-color:rgba(103, 212, 255, 0.575);
+                border-radius: 10px;
+                border: 1px solid rgb(12, 206, 206);
+                display:inline-block;
+                animation:fade 3s;
+            }
+        </style>
+        <div id = 'alerts'></div>
+        <h1 id = 'time'></h1>
+        <button id='editbutton' onclick='document.getElementById("editpage").style.display="inline-block";location.href="#editanchor"'>edit</button>
+        <br><br>
+        <table id = 'main'></table>
+        <br>
+        <input type='checkbox' name='audiocheck' id='audiocheck' onchange='abortRadio()'>
+        <label for='audiocheck'>Enable Alarm</label>
+        <br><br>
+        <a name='editanchor'></a>
+        <div id='editpage'></div>
+        <audio id='radio'>
+            <source src='radio.mp3' type='audio/mpeg'>
+        </audio>
+
+        <br><br>
+        <a href='https://github.com/knosmos' style='color:black;font-size:smaller;'>created by Jieruei Chang @knosmos</a>
+        <script>
+            /*classes = [
+                'Spanish','Health','Biology','History','Sinfonia','Geometry','English','Economics'
+            ];*/
+            rotations = [[3,1,7,5],[4,2,8,6]];
+            startTimes = [
+                [[9,25],[10,45],[12,15],[13,35]], // E
+                [[9,25],[10,45],[12,15],[13,35]]  // F
+            ];
+            dayNames = ['E','F'];
+            
+            let numClasses = 8;
+            let startDate = 258;
+            
+            let classes = [];
+            
+            function flash(message){
+                let a = document.createElement('div')
+                a.className = 'alert';
+                setTimeout(function(){a.style.display='none';},2000);
+                a.textContent = message;
+                let b = document.createElement('br')
+                setTimeout(function(){b.style.display='none';},2000);
+                document.getElementById('alerts').appendChild(a);
+                document.getElementById('alerts').appendChild(b);
+            }
+
+            function loadClasses(){
+                let c = JSON.parse(localStorage.getItem('classes'));
+                if(c){
+                    classes = c;
+                }
+                else{
+                    for(let i=1;i<=numClasses;i++){
+                        classes.push(`Period ${i}`);
+                    }
+                    flash('Classes have not been set');
+                }
+            }
+            loadClasses();
+
+            function createEditPage(){
+                d = document.getElementById('editpage');
+                d.innerHTML = '';
+                for(let j=1;j<=numClasses;j++){
+                    d.innerHTML += `<input type=text id=editp${j} value='${classes[j-1]}' placeholder='Period ${j}'><br>`;
+                    console.log(classes[j-1]);
+                }
+                d.innerHTML += `<button onclick="setClasses();loadClasses();makeSchedule();flash('Classes updated')">Save</button>`
+            }
+            createEditPage();
+
+            function setClasses(){
+                let c = [];
+                for(let i=1;i<=numClasses;i++){
+                    c.push(document.getElementById(`editp${i}`).value);
+                }
+                localStorage.setItem('classes',JSON.stringify(c));
+                document.getElementById('editpage').style.display='none';
+            }
+
+            let hr, min, day;
+            let nextClass = -1;
+
+            function playRadio(){
+                if(document.getElementById('audiocheck').checked){
+                    document.getElementById('radio').play();
+                }
+                else{
+                    alert("Cmon! You're late!");    
+                }
+                flash("Cmon! You're late!");
+            }
+
+            function abortRadio(){
+                if(!document.getElementById('audiocheck').checked){
+                    document.getElementById('radio').pause();
+                }
+            }
+
+            function dayOfYear(){
+                // https://stackoverflow.com/questions/8619879/javascript-calculate-the-day-of-the-year-1-366
+                var now = new Date();
+                var start = new Date(now.getFullYear(), 0, 0);
+                var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
+                var oneDay = 1000 * 60 * 60 * 24;
+                var day = Math.floor(diff / oneDay);
+                return day;
+            }
+            function setTime(){
+                d = new Date();
+                hr = d.getHours();
+                min = d.getMinutes();
+                let sec = d.getSeconds();
+                let l = rotations.length;
+                day = ((dayOfYear()-startDate)%l+l)%l;
+                document.getElementById('time').innerHTML = `${hr}:${min.toString().padStart(2,'0')} <span style='color:rgb(100,100,100)'>${dayNames[day]}</span>`;
+                setTimeout(setTime,(60-sec)*1000);
+                setTimeout(makeSchedule,(60-sec)*1000);
+            }
+            function makeSchedule(){
+                m = document.getElementById('main');
+                m.innerHTML = '';
+                let oldNextClass = nextClass;
+                for(let r = 0; r < rotations[day].length; r++){
+                    let p = '';
+                    d = startTimes[day][r];
+                    if (hr > d[0] || (hr >= d[0] && min >= d[1])){
+                        p = 'soft';
+                        nextClass = r;
+                    }
+                    //m.innerHTML += `<div class = '${p} card'>${classes[rotations[day][r]-1]} | ${d[0]}:${d[1].toString().padStart(2,'0')}</div>`;
+                    m.innerHTML += `
+                    <tr class = '${p} card'>
+                        <td>${classes[rotations[day][r]-1]}</td>
+                        <td>${d[0]}:${d[1].toString().padStart(2,'0')}</td>
+                    </tr>
+                    `;
+                }
+                if (oldNextClass != -1 && oldNextClass != nextClass){
+                    console.log(nextClass);
+                    playRadio();
+                }
+            }
+            setTime();
+            //setInterval(setTime,6000);
+
+            makeSchedule();
+            //setInterval(makeSchedule,6000)
+        </script>
+    </body>
+</html>
