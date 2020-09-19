@@ -5,12 +5,15 @@
     </head>
     <body>
         <style>
-            body{
-                font-family:Bahnschrift,"Segoe UI",serif;
-                background-size:cover;
-                text-align:center;
+            html{
+                width: 100%;
+                height: 100%;
                 background-image:url('https://refugesunnyslope.com/wp-content/uploads/2018/11/Video-Webpage-Background.jpg');
                 background-size:cover;
+            }
+            body{
+                font-family:Bahnschrift,"Segoe UI",serif;
+                text-align:center;
                 font-weight:400;
             }
             h1{
@@ -100,20 +103,22 @@
         <br><br>
         <a href='https://github.com/knosmos' style='color:black;font-size:smaller;'>created by Jieruei Chang @knosmos</a>
         <script>
-            rotations = [[3,1,7,5],[4,2,8,6],[3,1,7,5],[4,2,8,6],[],[],[]];
+            /*classes = [
+                'Spanish','Health','Biology','History','Sinfonia','Geometry','English','Economics'
+            ];*/
+            rotations = [[3,1,7,5],[4,2,8,6],[3,1,7,5],[4,2,8,6],[]];
             startTimes = [
                 [[9,25],[10,45],[12,15],[13,35]], // E
                 [[9,25],[10,45],[12,15],[13,35]],  // F
                 [[9,25],[10,45],[12,15],[13,35]], // E
                 [[9,25],[10,45],[12,15],[13,35]],  // F
-                [], // Friday
-                [], // Weekend
-                []  // Weekend
+                [] // Friday
             ];
-            dayNames = ['E','F','E','F','Remote','Weekend','Weekend'];
+            dayNames = ['E','F','E','F','Remote'];
             
             let numClasses = 8;
             let startDate = 258;
+            let startWeek = 38;
             
             let classes = [];
             
@@ -170,9 +175,9 @@
                     document.getElementById('radio').play();
                 }
                 else{
-                    alert("Cmon! You're late!");    
+                    alert("Five minutes to go!");    
                 }
-                flash("Cmon! You're late!");
+                flash("Five minutes to go!");
             }
 
             function abortRadio(){
@@ -180,6 +185,13 @@
                     document.getElementById('radio').pause();
                 }
             }
+
+            /* BEGIN A bunch of stackoverflow date code */
+
+            /*function dateFromDay(year, day){
+                var date = new Date(year, 0); // initialize a date in `year-01-01`
+                return new Date(date.setDate(day)); // add the number of days
+            }*/
 
             function dayOfYear(){
                 // https://stackoverflow.com/questions/8619879/javascript-calculate-the-day-of-the-year-1-366
@@ -190,25 +202,56 @@
                 var day = Math.floor(diff / oneDay);
                 return day;
             }
+
+            /*function dayToWeek(julian){
+                let now = new Date();
+                d = dateFromDay(now.getFullYear, julian);
+                let dow = d.getDay();
+                j = new Date(now.getFullYear, 0, 0);
+                let dow1 = j.getDay();
+                let weekNum = ((julian + 6) / 7);
+                if (dow < dow1){weekNum += 1;}
+                return weekNum;
+            }*/
+
+            function weekOfYear(){
+                var d = new Date();
+                d.setHours(0,0,0);
+                d.setDate(d.getDate()+4-(d.getDay()||7));
+                return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+            };
+
             function setTime(){
                 d = new Date();
                 hr = d.getHours();
                 min = d.getMinutes();
                 let sec = d.getSeconds();
                 let l = rotations.length;
-                day = ((dayOfYear()-startDate)%l+l)%l;
-                document.getElementById('time').innerHTML = `${hr}:${min.toString().padStart(2,'0')} <span style='color:rgb(100,100,100)'>${dayNames[day]}</span>`;
+                let dayName;
+                if (d.getDay() == 0 || d.getDay() == 6){
+                    day = -1;
+                    dayName = 'Weekend';
+                }
+                else{
+                    let numWeekends = Math.abs(weekOfYear() - startWeek)*2;
+                    day = ((dayOfYear()-numWeekends-startDate)%l+l)%l;
+                    dayName = dayNames[day];
+                }
+                document.getElementById('time').innerHTML = `${hr}:${min.toString().padStart(2,'0')} <span style='color:rgb(100,100,100)'>${dayName}</span>`;
                 setTimeout(setTime,(60-sec)*1000);
                 setTimeout(makeSchedule,(60-sec)*1000);
             }
             function makeSchedule(){
                 m = document.getElementById('main');
                 m.innerHTML = '';
+                if (day == -1){ // Weekend
+                    return;
+                }
                 let oldNextClass = nextClass;
                 for(let r = 0; r < rotations[day].length; r++){
                     let p = '';
                     d = startTimes[day][r];
-                    if (hr > d[0] || (hr >= d[0] && min >= d[1])){
+                    if (hr > d[0] || (hr >= d[0] && min-5 >= d[1])){
                         p = 'soft';
                         nextClass = r;
                     }
