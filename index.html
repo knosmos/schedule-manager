@@ -100,15 +100,17 @@
         <br><br>
         <a href='https://github.com/knosmos' style='color:black;font-size:smaller;'>created by Jieruei Chang @knosmos</a>
         <script>
-            /*classes = [
-                'Spanish','Health','Biology','History','Sinfonia','Geometry','English','Economics'
-            ];*/
-            rotations = [[3,1,7,5],[4,2,8,6]];
+            rotations = [[3,1,7,5],[4,2,8,6],[3,1,7,5],[4,2,8,6],[],[],[]];
             startTimes = [
                 [[9,25],[10,45],[12,15],[13,35]], // E
-                [[9,25],[10,45],[12,15],[13,35]]  // F
+                [[9,25],[10,45],[12,15],[13,35]],  // F
+                [[9,25],[10,45],[12,15],[13,35]], // E
+                [[9,25],[10,45],[12,15],[13,35]],  // F
+                [], // Friday
+                [], // Weekend
+                []  // Weekend
             ];
-            dayNames = ['E','F'];
+            dayNames = ['E','F','E','F','Remote','Weekend','Weekend'];
             
             let numClasses = 8;
             let startDate = 258;
