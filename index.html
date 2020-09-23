@@ -251,7 +251,7 @@
                 for(let r = 0; r < rotations[day].length; r++){
                     let p = '';
                     d = startTimes[day][r];
-                    if (hr > d[0] || (hr >= d[0] && min-5 >= d[1])){
+                    if (hr > d[0] || (hr >= d[0] && min >= d[1])){
                         p = 'soft';
                         nextClass = r;
                     }
