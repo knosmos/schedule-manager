@@ -107,19 +107,26 @@
                 'Spanish','Health','Biology','History','Sinfonia','Geometry','English','Economics'
             ];*/
             rotations = [[3,1,7,5],[4,2,8,6],[3,1,7,5],[4,2,8,6],[]];
+            /*startTimes = [
+                [[9,25],[10,45],[12,15],[13,35]], // E
+                [[9,25],[10,45],[12,15],[13,35]],  // F
+                [[9,25],[10,45],[12,15],[13,35]], // E
+                [[9,25],[10,45],[12,15],[13,35]],  // F
+                [[]] // Friday
+            ];*/
             startTimes = [
-                [[9,25],[10,45],[12,15],[13,35]], // E
-                [[9,25],[10,45],[12,15],[13,35]],  // F
-                [[9,25],[10,45],[12,15],[13,35]], // E
-                [[9,25],[10,45],[12,15],[13,35]],  // F
-                [] // Friday
-            ];
+                [[8,20],[9,33],[10,47],[12,00]],
+                [[8,20],[9,33],[10,47],[12,00]],
+                [[8,20],[9,33],[10,47],[12,00]],
+                [[8,20],[9,33],[10,47],[12,00]],
+                [[]]
+            ]
             dayNames = ['E','F','E','F','Remote'];
             
             let numClasses = 8;
             let startDate = 258;
             let startWeek = 38;
-            
+            let offset = 0;
             let classes = [];
             
             function flash(message){
@@ -175,9 +182,9 @@
                     document.getElementById('radio').play();
                 }
                 else{
-                    alert("Five minutes to go!");    
+                    alert("Quick, you're late!");    
                 }
-                flash("Five minutes to go!");
+                flash("Quick, you're late!");
             }
 
             function abortRadio(){
@@ -234,7 +241,7 @@
                 }
                 else{
                     let numWeekends = Math.abs(weekOfYear() - startWeek)*2;
-                    day = ((dayOfYear()-numWeekends-startDate)%l+l)%l;
+                    day = ((dayOfYear()-offset-numWeekends-startDate)%l+l)%l;
                     dayName = dayNames[day];
                 }
                 document.getElementById('time').innerHTML = `${hr}:${min.toString().padStart(2,'0')} <span style='color:rgb(100,100,100)'>${dayName}</span>`;
